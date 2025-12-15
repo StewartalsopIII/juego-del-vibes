@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juan's Smash</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #0ff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            border: 1px solid #0ff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-link:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 20px #0ff;
+        }
+
+        .scene {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .player {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            /* Adjust based on image aspect ratio */
+            height: auto;
+            z-index: 10;
+            opacity: 0;
+            animation: playerAppear 1s ease-out forwards;
+        }
+
+        .player img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+        }
+
+        .ball {
+            position: absolute;
+            bottom: 30%;
+            /* Start near racket */
+            left: 52%;
+            /* Adjust to match hand/racket position */
+            width: 30px;
+            height: 30px;
+            z-index: 20;
+            opacity: 0;
+        }
+
+        .ball img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .crack-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('juan_cracked_screen.png') no-repeat center center;
+            background-size: cover;
+            opacity: 0;
+            z-index: 100;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        /* Animations */
+        @keyframes playerAppear {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(50px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* The Animation Sequence triggered by JS */
+
+        .anim-toss {
+            animation: toss 1s ease-out forwards;
+            opacity: 1 !important;
+        }
+
+        @keyframes toss {
+            0% {
+                bottom: 30%;
+                left: 52%;
+                transform: scale(1);
+            }
+
+            50% {
+                bottom: 45%;
+                left: 52%;
+                transform: scale(0.9);
+            }
+
+            /* Apex */
+            100% {
+                bottom: 35%;
+                left: 55%;
+                transform: scale(1);
+            }
+
+            /* Impact point */
+        }
+
+        .anim-smash {
+            animation: smash 0.4s cubic-bezier(0.1, 0.7, 1.0, 0.1) forwards;
+            /* Accelerate towards screen */
+        }
+
+        @keyframes smash {
+            0% {
+                bottom: 35%;
+                left: 55%;
+                transform: scale(1);
+            }
+
+            100% {
+                bottom: 50%;
+                left: 50%;
+                transform: scale(60);
+            }
+
+            /* Huge scale to simulate hitting screen */
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-10px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(20px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-40px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(40px, 0, 0);
+            }
+        }
+
+        .web-cracked {
+            opacity: 1;
+            /* Optional: playful rotation or shift */
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="../index.html" class="back-link">← Volver</a>
+
+    <div class="scene" id="scene">
+        <div class="player">
+            <img src="juan_tennis_player.png" alt="Tennis Player">
+        </div>
+        <div class="ball" id="ball">
+            <img src="juan_tennis_ball.png" alt="Ball">
+        </div>
+        <div class="crack-overlay" id="crack"></div>
+        <div class="instruction">Haz click en cualquier lugar para sacar / Click to Serve</div>
+    </div>
+
+    <script>
+        const scene = document.getElementById('scene');
+        const ball = document.getElementById('ball');
+        const crack = document.getElementById('crack');
+        let isAnimating = false;
+
+        document.body.addEventListener('click', () => {
+            if (isAnimating) {
+                // Reset to play again?
+                resetAnimation();
+                return;
+            }
+            startAnimation();
+        });
+
+        function startAnimation() {
+            isAnimating = true;
+            document.querySelector('.instruction').style.display = 'none';
+
+            // 1. Toss
+            ball.classList.add('anim-toss');
+
+            // 2. Wait for toss apex/impact timing
+            setTimeout(() => {
+                // 3. Smash!
+                ball.classList.remove('anim-toss');
+                ball.classList.add('anim-smash');
+
+                // Play sound? (Optional, user didn't ask but would be cool. Skipping for now to keep it simple)
+
+            }, 1000); // 1s toss duration
+
+            // 4. Impact
+            setTimeout(() => {
+                // Shake screen
+                document.body.classList.add('shake');
+
+                // Show crack
+                crack.classList.add('web-cracked');
+
+                // Hide ball (it "smashed" into the screen so technically it might bounce off or stick, but disappearing behind the crack is fine)
+                ball.style.opacity = '0';
+
+            }, 1400); // 1s toss + 0.4s smash
+        }
+
+        function resetAnimation() {
+            isAnimating = false;
+            ball.classList.remove('anim-toss', 'anim-smash');
+            document.body.classList.remove('shake');
+            crack.classList.remove('web-cracked');
+            ball.style.opacity = '0'; // Reset mostly hidden
+            document.querySelector('.instruction').style.display = 'block';
+
+            // Allow re-trigger after a brief moment
+            setTimeout(() => {
+                ball.style.opacity = '';
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>
