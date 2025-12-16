@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Año Nuevo - Santiago</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Explosion Effect */
+        .explosion-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            z-index: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shockwave {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            opacity: 0;
+        }
+
+        .shockwave.active {
+            animation: explode 1.5s ease-out forwards;
+        }
+
+        /* Star Particles */
+        .particle {
+            position: absolute;
+            font-size: 20px;
+            /* Star size */
+            line-height: 1;
+            user-select: none;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+        }
+
+        .particle.active {
+            animation: shoot 1.5s ease-out forwards;
+        }
+
+        /* Message Container */
+        .message-container {
+            text-align: center;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 2;
+        }
+
+        .message-container.active {
+            animation: uiCycle 5s linear infinite;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        h2 {
+            font-size: 6rem;
+            margin: 0;
+            font-weight: bold;
+            color: #f0ad4e;
+            /* Gold-ish color */
+            text-shadow: 0 0 20px rgba(240, 173, 78, 0.8);
+        }
+
+        /* Animations */
+        @keyframes explode {
+            0% {
+                width: 0;
+                height: 0;
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 1);
+                opacity: 1;
+            }
+
+            70% {
+                width: 500px;
+                height: 500px;
+                box-shadow: 0 0 50px 50px rgba(255, 255, 255, 0);
+                opacity: 0.5;
+            }
+
+            100% {
+                width: 800px;
+                height: 800px;
+                box-shadow: 0 0 100px 100px rgba(255, 255, 255, 0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shoot {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: var(--translate-to) scale(1.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Cycle animation for text: Appear -> Stay -> Disappear -> Wait */
+        @keyframes uiCycle {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            10% {
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            /* Text fully visible around 1s */
+            80% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            90% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../index.html" class="back-link">← Volver</a>
+
+    <div class="explosion-container" id="explosion">
+        <div class="shockwave" id="shockwave"></div>
+        <!-- Stars will be here -->
+    </div>
+
+    <div class="message-container" id="messageBox">
+        <h1>Feliz Año Nuevo</h1>
+        <h2>FELIZ 2026</h2>
+    </div>
+
+    <script>
+        const explosionContainer = document.getElementById('explosion');
+        const shockwave = document.getElementById('shockwave');
+        const messageBox = document.getElementById('messageBox');
+        const particleCount = 40;
+        const colors = ['#FFD700', '#FFFFFF', '#FFA500', '#00FFFF', '#FF69B4']; // Star colors
+
+        function createStars() {
+            // Remove old particles
+            const oldParticles = document.querySelectorAll('.particle');
+            oldParticles.forEach(p => p.remove());
+
+            // Create new particles
+            for (let i = 0; i < particleCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('particle', 'active');
+                star.textContent = '★';
+                star.style.color = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random angle and distance
+                const angle = Math.random() * 360;
+                const distance = 150 + Math.random() * 350;
+
+                const tx = Math.cos(angle * Math.PI / 180) * distance;
+                const ty = Math.sin(angle * Math.PI / 180) * distance;
+
+                star.style.setProperty('--translate-to', `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`);
+
+                explosionContainer.appendChild(star);
+            }
+        }
+
+        function runCycle() {
+            // Reset and trigger shockwave
+            shockwave.classList.remove('active');
+            void shockwave.offsetWidth; // trigger reflow
+            shockwave.classList.add('active');
+
+            // Create stars
+            createStars();
+
+            // Handle Text Loop
+            // The text relies on CSS keyframes 'uiCycle' which is 5s infinite.
+            // We just need to make sure it's active.
+            if (!messageBox.classList.contains('active')) {
+                messageBox.classList.add('active');
+            }
+        }
+
+        // Run immediately
+        runCycle();
+
+        // Loop every 5 seconds
+        setInterval(runCycle, 5000);
+    </script>
+
+</body>
+
+</html>
