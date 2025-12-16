@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stewart's Crazy Countdown</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+            transition: background 0.1s;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 1rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+        }
+
+        #countdown {
+            font-size: 20rem;
+            color: #00ff00;
+            text-shadow: 0 0 50px #00ff00, 0 0 100px #00ff00;
+            transition: all 0.3s ease;
+        }
+
+        #countdown.warning {
+            color: #ffff00;
+            text-shadow: 0 0 50px #ffff00, 0 0 100px #ffff00;
+        }
+
+        #countdown.danger {
+            color: #ff0000;
+            text-shadow: 0 0 50px #ff0000, 0 0 100px #ff0000;
+            animation: shake 0.1s infinite;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px) rotate(-2deg);
+            }
+
+            75% {
+                transform: translateX(10px) rotate(2deg);
+            }
+        }
+
+        /* CRAZY MODE */
+        body.crazy {
+            animation: crazyBg 0.1s infinite;
+        }
+
+        @keyframes crazyBg {
+            0% {
+                background: #ff0000;
+            }
+
+            14% {
+                background: #ff7f00;
+            }
+
+            28% {
+                background: #ffff00;
+            }
+
+            42% {
+                background: #00ff00;
+            }
+
+            57% {
+                background: #0000ff;
+            }
+
+            71% {
+                background: #4b0082;
+            }
+
+            85% {
+                background: #9400d3;
+            }
+
+            100% {
+                background: #ff0000;
+            }
+        }
+
+        .crazy-text {
+            position: fixed;
+            font-size: 3rem;
+            font-weight: bold;
+            animation: flyAround 2s linear infinite;
+            text-shadow: 3px 3px 0 #000;
+            z-index: 500;
+        }
+
+        @keyframes flyAround {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            25% {
+                transform: rotate(90deg) scale(1.5);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(0.5);
+            }
+
+            75% {
+                transform: rotate(270deg) scale(2);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        .explosion {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            animation: explode 1s ease-out infinite;
+            z-index: 400;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(10);
+                opacity: 0;
+            }
+        }
+
+        #boom {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10rem;
+            z-index: 600;
+            animation: boomPulse 0.2s infinite;
+        }
+
+        @keyframes boomPulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.3) rotate(10deg);
+            }
+        }
+
+        .glitch {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                clip-path: inset(40% 0 61% 0);
+                transform: translate(-20px, 10px);
+            }
+
+            20% {
+                clip-path: inset(92% 0 1% 0);
+                transform: translate(20px, -10px);
+            }
+
+            40% {
+                clip-path: inset(43% 0 1% 0);
+                transform: translate(-20px, 10px);
+            }
+
+            60% {
+                clip-path: inset(25% 0 58% 0);
+                transform: translate(20px, -10px);
+            }
+
+            80% {
+                clip-path: inset(54% 0 7% 0);
+                transform: translate(-20px, 10px);
+            }
+
+            100% {
+                clip-path: inset(58% 0 43% 0);
+                transform: translate(20px, -10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../index.html" class="back-link">← Volver</a>
+
+    <div id="countdown">10</div>
+    <div id="boom">💥🤯💥</div>
+
+    <script>
+        const countdownEl = document.getElementById('countdown');
+        const boomEl = document.getElementById('boom');
+        let count = 10;
+
+        const crazyTexts = [
+            '¡LOCURA!', 'CRAZY!', '🔥🔥🔥', 'BOOM!', 'WOW!',
+            '!!!!!!', 'AAAAAAH!', '🎉🎉🎉', 'WILD!', '💀💀💀',
+            'VIBES!', '🚀🚀🚀', 'EPIC!', '¡INCREÍBLE!', '🌈🌈🌈'
+        ];
+
+        const colors = [
+            '#ff0000', '#ff7f00', '#ffff00', '#00ff00',
+            '#0000ff', '#4b0082', '#9400d3', '#ff1493',
+            '#00ffff', '#ff00ff', '#ffffff'
+        ];
+
+        function updateCountdown() {
+            count--;
+
+            if (count > 3) {
+                countdownEl.textContent = count;
+            } else if (count > 0) {
+                countdownEl.textContent = count;
+                countdownEl.classList.add(count <= 2 ? 'danger' : 'warning');
+            } else {
+                goCrazy();
+            }
+        }
+
+        function goCrazy() {
+            document.body.classList.add('crazy');
+            countdownEl.style.display = 'none';
+            boomEl.style.display = 'block';
+
+            // Spawn crazy text everywhere
+            setInterval(() => {
+                const text = document.createElement('div');
+                text.className = 'crazy-text';
+                text.textContent = crazyTexts[Math.floor(Math.random() * crazyTexts.length)];
+                text.style.left = Math.random() * 100 + 'vw';
+                text.style.top = Math.random() * 100 + 'vh';
+                text.style.color = colors[Math.floor(Math.random() * colors.length)];
+                text.style.animationDuration = (Math.random() * 2 + 0.5) + 's';
+                document.body.appendChild(text);
+
+                setTimeout(() => text.remove(), 3000);
+            }, 100);
+
+            // Spawn explosions
+            setInterval(() => {
+                const explosion = document.createElement('div');
+                explosion.className = 'explosion';
+                explosion.style.left = Math.random() * 100 + 'vw';
+                explosion.style.top = Math.random() * 100 + 'vh';
+                explosion.style.background = colors[Math.floor(Math.random() * colors.length)];
+                document.body.appendChild(explosion);
+
+                setTimeout(() => explosion.remove(), 1000);
+            }, 200);
+
+            // Make boom emoji go crazy
+            setInterval(() => {
+                boomEl.style.color = colors[Math.floor(Math.random() * colors.length)];
+                boomEl.textContent = ['💥🤯💥', '🔥😱🔥', '⚡🎉⚡', '🌈🚀🌈', '💀🎊💀'][Math.floor(Math.random() * 5)];
+            }, 150);
+        }
+
+        // Start countdown
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+
+</html>
